@@ -1,0 +1,261 @@
+<template>
+    <v-row no-gutters>
+      <v-col cols="12">
+        <v-toolbar title="Projects" >
+          <v-select
+            style="margin-top:18px; margin-left:5px;"
+            v-model="selected_country"
+            density="compact"
+            variant="outlined"
+            label="Country"
+            :items="countries"
+          ></v-select>
+          <v-select
+            style="margin-top:18px; margin-left:15px;"
+            v-model="selected_status"
+            density="compact"
+            variant="outlined"
+            label="Status"
+            :items="status"
+          ></v-select>
+        
+          <v-spacer></v-spacer>
+          <v-btn size="small" color="primary" to="./add">Add</v-btn>
+        </v-toolbar>
+        <div class="table-container">
+
+          <!--v-data-table-server
+            density="compact"
+            fixed-header
+            height="100%"
+            v-model:items-per-page="itemsPerPage"
+            :headers="headers"
+            :items="serverItems"
+            :items-length="totalItems"
+            :loading="loading"
+            item-value="name"
+            @update:options="loadItems"
+          >
+        
+          <template v-slot:item.name="{ item }">
+                 <a :href="get_project_link(item.name)"  >{{item.name}}</a>
+          </template>
+          <template v-slot:item.iron="{ item }">
+                 <a :href="item.iron" target="_blank" >view</a>
+          </template>
+          <template v-slot:item.calories="{ item }">
+                <strong style="text-align: center; width:1800px;">{{ item.calories }}</strong>
+          </template>
+          </v-data-table-server-->
+
+          <v-table density="compact">
+            <thead>
+              <tr>
+                <th class="text-left">
+                  CODE
+                </th>
+                <th class="text-left">
+                  NAME
+                </th>
+                <!--th class="text-left">
+                  DESCRIPTION
+                </th-->
+                <th class="text-left">
+                  DEADLINE
+                </th>
+                <th class="text-left">
+                  STATUS
+                </th>
+                <th class="text-left">
+                  URL
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="item in serverItems"
+                :key="item.name"
+              >
+                <td>{{ item.name }}</td>
+                <td>{{ item.calories }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+       
+
+        </div>
+      </v-col>
+
+    </v-row>
+    <v-row no-gutters>
+      <v-col cols="12" >
+        <v-toolbar   density="compact">
+          <v-btn>Prev</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn>Next</v-btn>
+        </v-toolbar>
+       
+      </v-col>
+    </v-row>
+  </template>
+  
+  <script>
+  import { project_status } from '~/project_config';
+  import { project_countries } from '~/project_config';
+  import { Client, Account, Databases , Query,ID} from 'appwrite';
+    const generateItems = (count) => {
+      const items = [];
+      for (let i = 1; i <= count; i++) {
+        items.push({
+          name: `Item ${i}`,
+          calories: "Specify a theme for this component and all of its children.",
+          fat: (Math.random() * 50).toFixed(1),
+          carbs: "10/10/2009",
+          protein: "STARTED",
+          iron: "https://appwrite.io/docs/products/databases/pagination/appwrite.io/docs/products/databases/pagination",
+        });
+      }
+      return items;
+    };
+  
+    const FakeAPI = {
+      async fetch({ page, itemsPerPage, sortBy }) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const items = generateItems(3000);
+  
+            if (sortBy.length) {
+              const sortKey = sortBy[0].key;
+              const sortOrder = sortBy[0].order;
+              items.sort((a, b) => {
+                const aValue = a[sortKey];
+                const bValue = b[sortKey];
+                return sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+              });
+            }
+  
+            const paginated = items.slice(start, end);
+  
+            resolve({ items: paginated, total: items.length });
+          }, 500);
+        });
+      },
+    };
+  
+    export default {
+      data: () => ({
+        itemsPerPage: 10,
+        headers: [
+          {
+            title: 'CODE',
+            align: 'center',
+            sortable: false,
+            key: 'name',
+            fixed: true,
+       
+          },
+          { title: 'NAME', key: 'calories', align: 'center',sortable: false, },
+          { title: 'DESCRIPTION', key: 'fat', align: 'center' , sortable: false,},
+          { title: 'DEADLINE', key: 'carbs', align: 'center' ,sortable: true , },
+          { title: 'STATUS', key: 'protein', align: 'center' ,sortable: false, },
+          { title: 'URL', key: 'iron', align: 'center' ,sortable: false, },
+        ],
+        serverItems: [],
+        loading: true,
+        totalItems: 300,
+        selected_status:"",
+        status:[],
+        selected_country:"",
+        countries:[]
+
+      }),
+      async mounted(){
+        this.countries = project_countries ;
+        this.selected_country = project_countries[0];
+        this.status = project_status;
+        this.selected_status = project_status[0];
+        const items = [];
+        for (let i = 1; i <= 100; i++) {
+          items.push({
+            name: `Item ${i}`,
+            calories: "Specify a theme for this component and all of its children.",
+            fat: (Math.random() * 50).toFixed(1),
+            carbs: "10/10/2009",
+            protein: "STARTED",
+            iron: "https://appwrite.io/docs/products/databases/pagination/appwrite.io/docs/products/databases/pagination",
+          });
+        }
+        this.serverItems = items;
+      },
+      methods: {
+        get_project_link(id){
+          return `./item/${id}`
+        },
+        async load_projects(){
+          try {
+            const runtimeConfig = useRuntimeConfig();
+            const { account ,database} = useAppwrite()
+            const result = await database.listDocuments(
+                runtimeConfig.public.projectDatebaseId, // databaseId
+                runtimeConfig.public.notesCollectionId, // collectionId
+                [
+                   Query.select(["name","$id"]),
+                   Query.orderDesc("$updatedAt")
+                ] // queries (optional)
+            );
+
+            console.log(result)
+            // this.notes = result.documents
+
+
+          } catch (error) {
+            console.log(error)
+          }
+        },
+        loadItems({ page, itemsPerPage, sortBy }) {
+          console.log(page,itemsPerPage,sortBy)
+          this.loading = true;
+          FakeAPI.fetch({ page, itemsPerPage, sortBy }).then(({ items, total }) => {
+            this.serverItems = items;
+            this.totalItems = total;
+            this.loading = false;
+          });
+        },
+      },
+    };
+  </script>
+  
+  <style>
+  .table-container {
+    max-height: 100vh; /* Maximum height set to the viewport height */
+    overflow-y: auto; /* Enable vertical scrolling */
+   /* Optional: border: 1px solid #ddd;  Add a border around the table */
+  }
+  
+  .v-data-table-server {
+    border-collapse: collapse;
+  }
+  
+  .v-data-table-server thead th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2; /* Ensure the header stays above the scrolling rows */
+  }
+
+  .v-data-table__thead {
+    position: fixed;
+  }
+
+  .v-table{
+    max-height: 78vh;
+  }
+
+  .v-data-table__td{
+    border: 1px solid rgb(46, 46, 46);
+    border-collapse: collapse;
+  }
+  </style>
+  
