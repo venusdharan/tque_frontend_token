@@ -8,6 +8,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   middleware: ['auth'] ,
   ssr: false,
+  devServer: {
+    port: 5100
+  },
   build: {
     transpile: ['vuetify','@vuepic/vue-datepicker'],
   },
