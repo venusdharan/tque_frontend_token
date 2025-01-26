@@ -6,13 +6,17 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  middleware: ['auth'] ,
   ssr: false,
   devServer: {
     port: 5100
   },
   build: {
     transpile: ['vuetify','@vuepic/vue-datepicker'],
+  },
+  nitro: {
+    prerender: {
+      autoSubfolderIndex: false
+    }
   },
   components: [
     {
