@@ -1,41 +1,13 @@
 <template>
     <v-app id="inspire">
       <v-app-bar>
-        <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-        <v-app-bar-title>TQue</v-app-bar-title>
+        <v-app-bar-title>TQUE</v-app-bar-title>
       </v-app-bar>
-      <v-navigation-drawer v-model="drawer" dense>
-      <v-list color="transparent" dense>
-        <v-list-item v-if="user"
-            :subtitle="user.name"
-            :title="get_sub_title(user)"
-            
-          >
-          <template v-slot:prepend>
-            <v-avatar :color="avatar_color">
-              {{ avatar_name }}
-            </v-avatar>
-          </template>
-        </v-list-item>
-      </v-list>
-      <hr></hr>
-     
-      <SideMenu menu_role="client" />
-      
-
-      <template v-slot:append>
-        <hr></hr>
-        <v-list-item link title="Logout" to="/auth/logout" prepend-icon="mdi-logout" style="margin-bottom:10px; margin-top:5px;"></v-list-item>
-      </template>
-
-      </v-navigation-drawer>
       <v-container fluid> 
             <v-main>
                 <slot />
             </v-main>
       </v-container>
-
-
     <v-footer absolute app>&copy;Triophore</v-footer>
     </v-app>
   </template>
