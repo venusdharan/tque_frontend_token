@@ -3,6 +3,7 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
@@ -11,7 +12,7 @@ export default defineNuxtConfig({
     port: 5100
   },
   build: {
-    transpile: ['vuetify','@vuepic/vue-datepicker'],
+    transpile: ['vuetify','@vuepic/vue-datepicker','v-phone-input',],
   },
   nitro: {
     prerender: {
@@ -26,6 +27,7 @@ export default defineNuxtConfig({
   ],
   modules: [
     //  '@sidebase/nuxt-auth',
+    // 'maz-ui/nuxt',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // @ts-expect-error
@@ -33,6 +35,7 @@ export default defineNuxtConfig({
       })
     },
   ],
+
  
   vite: {
     vue: {
@@ -43,7 +46,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public : {
-
+      TOKEN_URL: process.env.NUXT_TOKEN_URL,
     }
   }
 })
