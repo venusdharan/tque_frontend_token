@@ -19,7 +19,7 @@
             @update=" phone_update_event = $event"
             :countrySelectorWidth="'20rem'"
             :countrySelectorDisplayName="true"
-            :block="false"
+        
             style="margin-bottom: 15px; width: 100%;"
             size="xl"
             :id="'telinput'"
@@ -33,6 +33,15 @@
           <vue-turnstile site-key="0x4AAAAAAA9S92qkdmChhqkx" size="flexible" v-model="turn_token" style="margin-bottom: 5px; margin-top: 5px; margin-left: auto;" />
           <v-btn style="margin-top:50px;" block color="primary" @click="get_token">Get Token</v-btn>
       </v-card-text>
+  </v-card>
+  <v-card v-if="store_status === 'token'" class="pa-4 dark">
+
+  </v-card>
+  <v-card v-if="store_status === 'store_closed'" class="pa-4 dark">
+    <v-card-title>
+      This store closed
+    </v-card-title>
+    <v-alert text="Please try again later when the store opens" type="error"></v-alert>
   </v-card>
 </template>
 
@@ -244,12 +253,6 @@ export default {
 </script>
 
 <style>
-#telinput{
-  border-radius: 0px;
-  width:93rem;
-}
-.m-phone-number-input{
-  border-radius: 0px !important;
-}
+
 
 </style>
