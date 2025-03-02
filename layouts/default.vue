@@ -8,9 +8,7 @@
                 <slot />
             </v-main>
       </v-container>
-    <v-footer absolute app>&copy;
-      <a href="https://triophore.com" target="_blank">Triophore</a>
-    </v-footer>
+      <v-footer absolute app><a href="https://triophore.com" style="text-decoration:none;" target="_blank">&copy;Triophore - {{ new Date().getFullYear() }}</a></v-footer>
     </v-app>
   </template>
   

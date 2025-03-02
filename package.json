@@ -14,7 +14,7 @@
     "@mdi/font": "^7.4.47",
     "axios": "^1.7.9",
     "flag-icons": "^7.3.2",
-    "libphonenumber-js": "^1.11.20",
+    "libphonenumber-js": "^1.12.4",
     "maz-ui": "^3.50.1",
     "nuxt": "^3.15.0",
     "v-phone-input": "^4.4.1",

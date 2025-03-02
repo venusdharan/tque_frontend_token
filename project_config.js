@@ -1,1 +1,1 @@
-export const TokenGenUrl = "http://localhost:4500"
+export const TokenGenUrl = "http://localhost:4500/api/token/get_token/"
