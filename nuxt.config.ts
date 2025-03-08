@@ -26,12 +26,14 @@ export default defineNuxtConfig({
     //  '@sidebase/nuxt-auth',
     // 'maz-ui/nuxt',
     // 'maz-ui/nuxt',
+    // 'v-phone-input',
     (_options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig', (config) => {
         // @ts-expect-error
         config.plugins.push(vuetify({ autoImport: true }))
       })
     },
+    // 'v-phone-input',
   ],
 
 

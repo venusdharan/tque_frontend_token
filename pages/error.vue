@@ -4,8 +4,11 @@
         <v-col>
             <v-card>
                 <v-card-title>
-                    Error occurred please scan the QR Code again !
+                    Scan QR Code Again !
                 </v-card-title>
+                <v-card-text>
+                    Error occurred please scan the QR Code again !
+                </v-card-text>
             </v-card>
         </v-col>
     </v-row>
