@@ -114,7 +114,11 @@
     },
     methods: {
       async getPhoneNumber(){
-        return this.phoneNumber ;
+        //return this.phoneNumber ;
+        const pn = parsePhoneNumber(this.phoneNumber,{ regionCode: this.selectedCountry.iso2 });
+        // return this.phoneNumber ;
+        console.log(pn.number.e164)
+        return pn.number.e164;
       },
       async isValidPhoneNumber(){
         return this.isValid ;

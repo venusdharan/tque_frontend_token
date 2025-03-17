@@ -155,8 +155,8 @@ export default {
         }
     },   
     async go_error(){
-      // return true;
-      // await navigateTo('/error'); 
+      //return true;
+      await navigateTo('/error'); 
       window.location.replace('/error')
       await refreshNuxtData()
     },
