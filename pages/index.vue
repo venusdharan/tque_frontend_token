@@ -1,28 +1,61 @@
 <template>
   <v-card v-if="store_status === 'NONE'" class="pa-4 dark">
       <v-card-title >
-        <h1 style="text-align: center;">{{ client_name }}</h1>
+        <h1 style="text-align: center; word-wrap:normal;">{{ client_name }}</h1>
         
       </v-card-title>
       <v-card-text>
-        <h4 style="text-align: center; margin-bottom: 20px;">Fill to get token</h4>
+          <h4 style="text-align: center; margin-bottom: 20px;">Fill to get token</h4>
           <v-text-field
             v-model="name"
             label="Name*"
             type="text"
             required
+            density="compact"
           ></v-text-field>
           <PhoneNumber :prefferedCountries="['US','IN']" ref="phoneinput"/>
           <v-text-field
             v-model="email"
             label="Email"
-            
+            v-if="enable_email == true"
             type="email"
+            density="compact"
           ></v-text-field>
+          <v-text-field v-if="custom_field_type === 'Text' && custom_field === true" :label="custom_field_name" v-model="custom_field_data" density="compact"></v-text-field>
+          <v-number-input
+              v-if="custom_field_type === 'Number' && custom_field === true" 
+              :label="custom_field_name" 
+              v-model="custom_field_data" 
+              :min="1"
+              control-variant="split"
+              density="compact">
+          </v-number-input>
+            <!--v-select
+                v-if="enable_service_types == true"
+                label="Services"
+                density="compact"
+                :items="service_types"
+                :multiple="multi_select" v-else
+            ></v-select-->
+            <p v-if="multi_select == true">Services (Select any)</p>
+            <div v-if="multi_select == true" v-for="(item,idx) in service_types" :key="idx">
+              <v-checkbox
+                v-model="service_multiple_selected"
+                :label="item"
+                :value="item"
+              ></v-checkbox>
+            </div>
+            <p v-if="multi_select == false">Services (Select one)</p>
+            <v-radio-group v-if="multi_select == false" v-model="service_single_selected">
+              <div  v-for="(item,idx) in service_types" :key="idx">
+                <v-radio :label="item" :value="item"></v-radio>
+              </div>
+            </v-radio-group>
           <vue-turnstile v-if="load_turn" site-key="0x4AAAAAAA9S92qkdmChhqkx" size="flexible" v-model="turn_token" style="margin-bottom: 5px; margin-top: 5px; margin-left: auto;" />
           <v-btn style="margin-top:50px;" block color="primary" @click="get_token">Get Token</v-btn>
       </v-card-text>
   </v-card>
+  <!-- Token Expire -->
   <v-card v-if="store_status === 'token'" class="pa-4 dark">
     <v-card-title>
       <h1 v-if="is_token_valid === true" class="text-center" >Your Token</h1>
@@ -36,6 +69,24 @@
       <h1 class="text-center">{{ client_name }}</h1>
     </v-card-text>
     <v-card-text>
+      <ul>
+        <li>Name :: {{ name }}</li>
+        <li>Phone :: {{ phone }}</li>
+        <li v-if="email">Email :: {{ email }}</li>
+      </ul>
+    </v-card-text>
+    <v-card-text v-if="res_custom_field_name">
+      <ul>
+        <li v-if="res_custom_field_name">{{ res_custom_field_data }}</li>
+      </ul>
+    </v-card-text>
+    <v-card-text v-if="res_service_types.length != 0">
+      <h5 class="text-center">Services</h5>
+      <ul v-for="s in res_service_types">
+        <li>{{ s }}</li>
+      </ul>
+    </v-card-text>
+    <!--v-card-text>
       <h4 class="text-center">Name :: {{ name }}</h4>
     </v-card-text>
     <v-card-text v-if="phone">
@@ -43,8 +94,9 @@
     </v-card-text>
     <v-card-text v-if="email">
       <h4 class="text-center">Email :: {{ email }}</h4>
-    </v-card-text>
+    </v-card-text-->
   </v-card>
+  <!-- Token Excceded -->
 
 </template>
 
@@ -60,7 +112,7 @@ console.log(route.params) // { id: '123' }
 
 <script>
 import VueTurnstile from 'vue-turnstile';
-import { TokenGenUrl } from "~/project_config";
+import { TokenGenUrl , TokenDataUrl } from "~/project_config";
 import  axios  from 'axios';
 import { useRoute } from 'nuxt/app';
 import bs58 from 'bs58'
@@ -94,9 +146,22 @@ export default {
           is_token_valid:false,
           phone_update_event:{},
           store_status : "",
-          phone_error_text:"jsj",
-          load_turn:true
+          phone_error_text:"",
+          load_turn:true,
+          enable_email:false,
+          enable_service_types:false,
+          custom_field : false,
+          custom_field_name : "",
+          custom_field_type : "",
+          custom_field_data : null,
+          multi_select : false,
+          service_types : [],
+          service_multiple_selected:[],
+          service_single_selected:"",
 
+          res_service_types : [],
+          res_custom_field_name : "",
+          res_custom_field_data : ""
       }
   },
   async mounted() {
@@ -117,6 +182,27 @@ export default {
                 this.client_name =  json_p.client_name
                 this.store_status = "NONE"
                 this.load_turn = true
+
+                var d = await axios.post(TokenDataUrl+btoa(this.store_id));
+                var c_data = d.data || null
+                if(c_data){
+                  this.client_name = c_data.client_name
+                  // this.store_status = c_data.status || "NONE"
+                  this.enable_email = c_data.enable_email || false
+                  this.custom_field = c_data.custom_field || false
+                  this.custom_field_name = c_data.custom_field_name || ""
+                  this.custom_field_type = c_data.custom_field_type || ""
+                  this.multi_select = c_data.multi_select || false
+                  this.service_types = c_data.service_types || []
+                  this.enable_service_types = c_data.enable_service_types || false
+                  this.res_custom_field_name = c_data.custom_field_name || false
+                  this.res_custom_field_data = c_data.custom_field_data || false
+                  this.res_service_types = c_data.selected_services || []
+
+                }
+
+                console.log(d)
+
               }else{
                 await this.go_error()
               }
@@ -155,10 +241,10 @@ export default {
         }
     },   
     async go_error(){
-      //return true;
-      await navigateTo('/error'); 
-      window.location.replace('/error')
-      await refreshNuxtData()
+      return true;
+      // await navigateTo('/error'); 
+      // window.location.replace('/error')
+      // await refreshNuxtData()
     },
     invalid(o){
       console.log(o)
@@ -218,6 +304,21 @@ export default {
         }
       }
 
+      if(this.custom_field){
+        p["custom_field"] = true;
+        p["custom_field_name"] = this.custom_field_data;
+        p["custom_field_type"] = this.custom_field_type;
+        p["custom_field_data"] = this.custom_field_data;
+      }
+
+      if(this.service_types.length){
+        if(this.multi_select){
+          p["selected_services"] = this.service_multiple_selected
+        }else{
+          p["selected_services"] = [this.service_single_selected]
+        }
+      }
+
      
 
       try {
@@ -241,6 +342,17 @@ export default {
               this.client_name = d.data.data.client_name;
               this.is_token_valid = d.data.data.is_active;
               this.store_status = "token";
+
+              this.enable_email = c_data.enable_email || false
+              this.custom_field = c_data.custom_field || false
+              this.custom_field_name = c_data.custom_field_name || ""
+              this.custom_field_type = c_data.custom_field_type || ""
+              this.multi_select = c_data.multi_select || false
+              this.service_types = c_data.service_types || []
+              this.enable_service_types = c_data.enable_service_types || false
+              this.res_custom_field_name = c_data.custom_field_name || false
+              this.res_custom_field_data = c_data.custom_field_data || false
+              this.res_service_types = c_data.selected_services || []
             }
           }
         }
