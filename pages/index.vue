@@ -37,9 +37,11 @@
                 :items="service_types"
                 :multiple="multi_select" v-else
             ></v-select-->
+            <div v-if="service_types.length > 0 ">
             <p v-if="multi_select == true">Services (Select any)</p>
             <div v-if="multi_select == true" v-for="(item,idx) in service_types" :key="idx">
               <v-checkbox
+               hide-details
                 v-model="service_multiple_selected"
                 :label="item"
                 :value="item"
@@ -51,6 +53,7 @@
                 <v-radio :label="item" :value="item"></v-radio>
               </div>
             </v-radio-group>
+            </div>
           <vue-turnstile v-if="load_turn" site-key="0x4AAAAAAA9S92qkdmChhqkx" size="flexible" v-model="turn_token" style="margin-bottom: 5px; margin-top: 5px; margin-left: auto;" />
           <v-btn style="margin-top:50px;" block color="primary" @click="get_token">Get Token</v-btn>
       </v-card-text>
